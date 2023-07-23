@@ -1,38 +1,57 @@
 package main
 
-// Consts representing opponent moves - rock, paper or scissors as A, B, C.
-// Followed by player moves - rock, paper or scissors as X, Y, Z.
+// Enum representing different moves
 const (
-	A = iota
-	B
-	C
-	X
-	Y
-	Z
+	rock = iota
+	paper
+	scissors
 )
 
-// Const representing the scores for each type of player move.
+// Enum representing desired outcomes.
 const (
-	XScore = 1
-	YScore = 2
-	ZScore = 3
+	loss = iota
+	draw
+	win
 )
 
-// Const representing the scores for each outcome.
-const (
-	LossScore = 0
-	DrawScore = 3
-	WinScore  = 6
-)
+// Map to look up opponent moves.
+var moveLookup map[byte]int = map[byte]int{
+	'A': rock,
+	'B': paper,
+	'C': scissors,
+}
 
-// Truth table to calculate score from the opponent (A, B, C) and player
-// (X, Y, Z) moves.
-//    A  B  C
-// X  3  6  0
-// Y  0  3  6
-// Z  6  0  3
-var winTable [][]int = [][]int{
-	{DrawScore, WinScore, LossScore},
-	{LossScore, DrawScore, WinScore},
-	{WinScore, LossScore, DrawScore},
+// Map to look up desired outcomes.
+var outcomeLookup map[byte]int = map[byte]int{
+	'X': loss,
+	'Y': draw,
+	'Z': win,
+}
+
+// Map to look up outcome score.
+// Could be an array, but this is nice and readble
+var outcomeScoreLookup map[int]int = map[int]int{
+	loss: 0,
+	draw: 3,
+	win:  6,
+}
+
+// Map to look up player move score.
+// Could be an array, but this is nice and readble
+var playerMoveScoreLookup map[int]int = map[int]int{
+	rock:     1,
+	paper:    2,
+	scissors: 3,
+}
+
+// Truth table to determine player move from opponent move (A, B, C) and desired
+// outcome (X, Y, Z) (Lose, Draw, Win).
+//       R  P  S
+// Lose  S  R  P
+// Draw  R  P  S
+// Win   P  S  R
+var moveTable [][]int = [][]int{
+	{scissors, rock, paper},
+	{rock, paper, scissors},
+	{paper, scissors, rock},
 }

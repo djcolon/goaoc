@@ -10,63 +10,57 @@ import (
 
 // Returns the score for the player's move. Error for non-player move input.
 func getScoreForPlayerMove(input int) (score int, err error) {
-	switch input {
-	case X:
-		return XScore, nil
-	case Y:
-		return YScore, nil
-	case Z:
-		return ZScore, nil
+	score, inMap := playerMoveScoreLookup[input]
+	if !inMap {
+		return 0, errors.New("received invalid input to getScoreForPlayerMove")
 	}
-	return 0, errors.New("received invalid input to getScoreForPlayerMove")
+	return score, nil
 }
 
 // Returns the score for the match outcome.
-func getScoreForMatchOutcome(opponentMove, playerMove int) (score int, err error) {
-	if opponentMove < 0 || opponentMove > 2 {
-		return 0, fmt.Errorf("received invalid value for opponent move in getScoreForMoves: %d", opponentMove)
+func getScoreForMatchOutcome(outcome int) (score int, err error) {
+	score, inMap := outcomeScoreLookup[outcome]
+	if !inMap {
+		return 0, errors.New("received invalid input to getScoreForMatchOutcome")
 	}
-	if playerMove-3 < 0 || playerMove-3 > 2 {
-		return 0, fmt.Errorf("received invalid value for player move in getScoreForMoves: %d", playerMove)
-	}
-	return winTable[opponentMove][playerMove-3], nil
+	return score, nil
 }
 
-// Parses a string into an opponent and player move.
+// Gets the player mvoe from the oppoentn's move and the desired outcome.
+func getPlayerMoveForOpponentMoveAndOutcome(opponentMove, desiredOutcome int) (playerMove int, err error) {
+	if playerMove < 0 || playerMove > 2 {
+		return 0, fmt.Errorf("playerMove out of bounds in getPlayerMoveForOpponentMoveAndOutcome")
+	}
+	if desiredOutcome < 0 || desiredOutcome > 2 {
+		return 0, fmt.Errorf("desiredOutcome out of bounds in getPlayerMoveForOpponentMoveAndOutcome")
+	}
+	return moveTable[opponentMove][desiredOutcome], nil
+}
+
+// Parses a string into an opponent move and desired outcome.
 // String must have format `^[ABC] [XYZ]$` or an error is thrown.
-func parseStrategyLine(line string) (opponentMove, playerMove int, err error) {
+func parseStrategyLine(line string) (opponentMove, desiredOutcome int, err error) {
 	if len(line) != 3 {
 		return 0, 0, fmt.Errorf("strategy line should be 3 characters, received: '%s'", line)
 	}
-	switch line[0] {
-	case 'A':
-		opponentMove = A
-	case 'B':
-		opponentMove = B
-	case 'C':
-		opponentMove = C
-	default:
+	opponentMove, inMap := moveLookup[line[0]]
+	if !inMap {
 		return 0, 0, fmt.Errorf("opponent move should be one of [ABC], received: '%q'", line[0])
 	}
-	switch line[2] {
-	case 'X':
-		playerMove = X
-	case 'Y':
-		playerMove = Y
-	case 'Z':
-		playerMove = Z
-	default:
-		return 0, 0, fmt.Errorf("player move should be one of [XYZ], received: '%q'", line[2])
+	desiredOutcome, inMap = outcomeLookup[line[2]]
+	if !inMap {
+		return 0, 0, fmt.Errorf("desired outcome move should be one of [XYZ], received: '%q'", line[0])
 	}
-	return opponentMove, playerMove, nil
+	return opponentMove, desiredOutcome, nil
 }
 
 // Calculates the score for a strategy file:
 // - Tries to open the file
 // - Reads the file line-by-line
 // - For each line:
-//   - Parses the contents of the line into a player and opponent move
-//   - gets the score for the move and outcome
+//   - Parses the contents of the line into an opponent move and desired outcome
+//   - Gets the player move to achieve the outcome
+//   - Gets the score for the move and outcome
 //   - Adds them to the total score
 // Returns the score.
 // Errors if the file can't be read or contains invalid content.
@@ -92,9 +86,14 @@ func calcScoreForStrategyFile(filePath string) (score int, err error) {
 		line := scanner.Text()
 
 		// Parse it.
-		opponentMove, playerMove, err := parseStrategyLine(line)
+		opponentMove, desiredOutcome, err := parseStrategyLine(line)
 		if err != nil {
 			return 0, fmt.Errorf("failed parsing '%s' on line %d with error: '%v'", filePath, i, err)
+		}
+		// Determine th eplayer move.
+		playerMove, err := getPlayerMoveForOpponentMoveAndOutcome(opponentMove, desiredOutcome)
+		if err != nil {
+			return 0, fmt.Errorf("failed determining playerMove for entry '%s' on line %d with error: '%v'", line, i, err)
 		}
 		// Get the score for the playermove.
 		scoreForPlayerMove, err := getScoreForPlayerMove(playerMove)
@@ -102,7 +101,7 @@ func calcScoreForStrategyFile(filePath string) (score int, err error) {
 			return 0, fmt.Errorf("failed determining score for player move for entry '%s' on line %d with error: '%v'", line, i, err)
 		}
 		// Get the score for the match outcome.
-		scoreForMatchOutcome, err := getScoreForMatchOutcome(opponentMove, playerMove)
+		scoreForMatchOutcome, err := getScoreForMatchOutcome(desiredOutcome)
 		if err != nil {
 			return 0, fmt.Errorf("failed determining score for match outcome for entry '%s' on line %d with error: '%v'", line, i, err)
 		}
