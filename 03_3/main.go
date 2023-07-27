@@ -101,6 +101,8 @@ func calcPrioritySumForInputFile(filePath string) (prioritySum int, err error) {
 	bagGroups := make(chan []string)
 	itemScores := make(chan int)
 	totalScore := make(chan int)
+	// We'll need to wait until all the elves are done before we start closing
+	// channels.
 	badgeFinderWaitGroup := new(sync.WaitGroup)
 	badgeFinderWaitGroup.Add(badgeFinders)
 	// We'll create a group of badgeFinders. When the function reading our input
