@@ -1,4 +1,4 @@
---- Day 5: Supply Stacks ---
+# Day 5: Supply Stacks - part 1
 The expedition can depart as soon as the final supplies have been unloaded from
 the ships. Supplies are stored in stacks of marked crates, but because the
 needed supplies are buried under many other crates, the crates need to be
@@ -102,3 +102,15 @@ for moves
 ```
 
 And then simply return the ends of the slices in order.
+
+## Opportunity to practice
+
+Whilst the outcome of the crate stacking is order dependent (except for blocks
+of moves that are independent of each-other) we can split the parsing of the
+input file into multiple parallel processes. We'll spawn three processes
+to do our work. The first will be passed the input file up to the blank
+line, and parse it into the original stack layout. A second process will start
+processing all the moves, and pass it into a pipe with a bit of a buffer
+(to allow it to run ahead of the other pipes). Finally we'll set up a third
+process to simulate our crane movements. It'll wait for the initial state, and
+then start processing moves as they are passed into the pipe.
