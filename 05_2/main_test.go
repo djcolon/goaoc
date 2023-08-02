@@ -18,3 +18,18 @@ func TestGetTopCratesAfterMovesForFile(t *testing.T) {
 		t.Fatalf("Incorrect result for example input, expected \"MCD\", got \"%s\".", topCrates)
 	}
 }
+
+// test the error groups.
+func TestInvalidDefinitionErrors(t *testing.T) {
+	_, err := getTopCratesAfterMovesForFile("example_input_invalid_definition.txt")
+	if err == nil {
+		t.Fatalf("Expected error for test file: '%v'.", err)
+	}
+}
+
+func TestInvalidMoveErrors(t *testing.T) {
+	_, err := getTopCratesAfterMovesForFile("example_input_invalid_move.txt")
+	if err == nil {
+		t.Fatalf("Expected error for test file: '%v'.", err)
+	}
+}

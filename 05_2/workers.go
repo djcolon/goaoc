@@ -13,6 +13,8 @@ func stacksWorker(definitionLinesChannel <-chan string, moveChannel <-chan move,
 	// The channel closed, build our stacks.
 	resultStacks, err := makeStacks(definitionLines)
 	if err != nil {
+		// Don't leave this channel dangling if we error out.
+		close(topCratesChannel)
 		return err
 	}
 	// Then start processing moves.
@@ -32,6 +34,8 @@ func movesWorker(moveStringChannel <-chan string, moveChannel chan<- move) (err 
 		// Parse mvoes as long as they come.
 		move, err := makeMove(moveString)
 		if err != nil {
+			// Don't leave this channel dangling if we error out.
+			close(moveChannel)
 			return err
 		}
 		moveChannel <- move

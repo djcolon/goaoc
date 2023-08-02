@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"log"
 	"os"
+
+	"golang.org/x/sync/errgroup"
 )
 
 // Loads the input file, parses it into an initial stacks definition and moves,
@@ -23,9 +25,16 @@ func getTopCratesAfterMovesForFile(filePath string) (topCrates string, err error
 	moveChannel := make(chan move, 10)
 	topCratesChannel := make(chan string)
 
+	// And an errorgroup to handle errors in out goroutines.
+	errorGroup := errgroup.Group{}
+
 	// And our workers.
-	go stacksWorker(definitionLinesChannel, moveChannel, topCratesChannel)
-	go movesWorker(moveStringChannel, moveChannel)
+	errorGroup.Go(func() error {
+		return stacksWorker(definitionLinesChannel, moveChannel, topCratesChannel)
+	})
+	errorGroup.Go(func() error {
+		return movesWorker(moveStringChannel, moveChannel)
+	})
 
 	// Initialise scanner
 	scanner := bufio.NewScanner(file)
@@ -52,11 +61,16 @@ func getTopCratesAfterMovesForFile(filePath string) (topCrates string, err error
 	close(moveStringChannel)
 	// Done parsing the file. Wait for a result.
 	topCrates = <-topCratesChannel
+	// Handle any errors here.
+	err = errorGroup.Wait()
+	if err != nil {
+		return "", err
+	}
 	return topCrates, nil
 }
 
 func main() {
-	log.Println("Advent of Code 2022 - 5.1")
+	log.Println("Advent of Code 2022 - 5.2")
 
 	// Checks args.
 	if len(os.Args) < 2 {
