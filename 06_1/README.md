@@ -61,14 +61,21 @@ nor does it allow us to easily change the number of characters required for a
 marker.
 
 What we can do is maintain a directory of characters that are currently in the
-window. As we shift over the string, we remove the oldest character, and then
-add the new character. When we go and add the new character, and it is already
-in the directory, we'll know we have hit our index. This means that, for any
-size of input, and any size of key, we will only use a fixed amount of memory
-(determined by the number of possible characters in our string) and compute.
+window, and how many of them there are. As we shift over the string, we decrease
+the count of how many of the oldest characters there are in our window, and
+we increase the count of how many of the new characters there are.
+As we update the counts of each character, we'll update a single counter
+tracking how many characters there are that have more than 1 character currently
+in the window. We'll increase it if a single characters count goes above 1, and
+decrease it if it drops below. If that count is zero when we've processed
+characters beyond the length of the marker we'll have found the marker.
+
+This means that, for any size of input, and any size of key, we will only use a
+fixed amount of memory (determined by the number of possible characters in our
+string) and compute.
 
 The data-structure we use to track this is dependent on a trade-of. The fastest
-solution is to recognise that we're just reading bytes limited to a speciofic
+solution is to recognise that we're just reading bytes limited to a specific
 subset of ascii. In this case the lower-case letters spanning a at 97 to z
 at 122. As such, we can have a fixed-length array of bools that we
 address by `read byte - 97` and set to `true` and `false`. This'll only use
@@ -80,16 +87,23 @@ instead, or define an interface that'd allow us to easily switch out methods.
 If the compiler does a good job, the latter should provide us with flexibility
 without causing performance overhead.
 
-Alongside this structure we'll keep an in-order buffer (a list would do well)
+Alongside this structure we'll keep an in-order buffer (circular array or list)
 of the characters in our moving window to allow us to update our character map,
 and an index to keep track of where we are in the file.
 
 Finally, we'll read the file byte-by-byte so that we can process a large file.
 We'll only be limited in file size we can process by the maximum size of the
 index. If we us a uint64 that is massive. The odds of this running on a 32-bit
-system are not wiorth consideraiton given the application.
+system are not worth consideration given the application.
 
 ## Assumptions
 
-We'll assume we can only encounter lower-case characters.
+We'll assume we can only encounter lower-case characters (a-z).
 
+# Learning opportunities
+
+This exercise is another opportunity to experiment with Go as a language. We'll
+implement both proposed methods of a signal processor behind an interface.
+We can then swap them out easily if so desired. We'll also try out
+[testing benchmarks](https://pkg.go.dev/testing#hdr-Benchmarks) to see what is
+actually faster.
