@@ -29,7 +29,7 @@ func getMarkerPosition(filePath string, engine signalprocessor.ProcessorEngine) 
 	case signalprocessor.ArrayProcessorEngine:
 		processor = &signalprocessor.ArrayProcessor{}
 	case signalprocessor.MapProcessorEngine:
-		return 0, errors.New("failed to instatiate SignalProcessor with MapProcessor engine - not yet implemented")
+		processor = &signalprocessor.MapProcessor{}
 	default:
 		return 0, errors.New("failed to instatiate SignalProcessor with unimplemented processing engine")
 	}

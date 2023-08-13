@@ -56,12 +56,16 @@ func testProcessBounds(t *testing.T, processor SignalProcessor) {
 	if err != nil {
 		t.Fatalf("Unexpected error for passing byte at upper limit inside search space ('z') into SignalProcessor.Process.")
 	}
-	// And overflowing our counter.
+}
+
+func testProcessOverflow(t *testing.T, processor SignalProcessor) {
+	processor.Initialise(4, byte('z'-'a')+1, byte('a'))
+	// Test overflowing our counter.
 	processor.Initialise(300, byte('z'-'a')+1, byte('a'))
 	for i := 0; i < math.MaxUint8; i++ {
 		_, _ = processor.Process('a')
 	}
-	_, err = processor.Process('a')
+	_, err := processor.Process('a')
 	if err == nil {
 		t.Fatalf("Expected error for filling up searchSpace counter to Uint8Max.")
 	}
@@ -109,7 +113,29 @@ func TestArrayProcessorBound(t *testing.T) {
 	testProcessBounds(t, &processor)
 }
 
+func TestArrayProcessorOverflow(t *testing.T) {
+	processor := ArrayProcessor{}
+	testProcessOverflow(t, &processor)
+}
+
 func TestArrayProcessorGetCharactersProcessed(t *testing.T) {
 	processor := ArrayProcessor{}
+	testGetGetCharactersprocessed(t, &processor)
+}
+
+// Specific tests for MapProcessor.
+// Note we're not testing bounds as they don't apply.
+func TestMapProcessorHappyPath(t *testing.T) {
+	processor := MapProcessor{}
+	testProcessHappyPath(t, &processor)
+}
+
+func TestMapProcessorOverflow(t *testing.T) {
+	processor := MapProcessor{}
+	testProcessOverflow(t, &processor)
+}
+
+func TestMapProcessorGetCharactersProcessed(t *testing.T) {
+	processor := MapProcessor{}
 	testGetGetCharactersprocessed(t, &processor)
 }

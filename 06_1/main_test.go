@@ -46,6 +46,12 @@ func testGetMarkerPositionsForExamplesForEngine(t *testing.T, engine signalproce
 	testGetMarkerPositionsForExamplesForEngineForFile(t, engine, "./example_input_4.txt", 11)
 }
 
+// Array engine specific tests.
 func TestGetMarkerPositionsForExamplesForArrayEngine(t *testing.T) {
 	testGetMarkerPositionsForExamplesForEngine(t, signalprocessor.ArrayProcessorEngine)
+}
+
+// Map engine specific tests.
+func TestGetMarkerPositionsForExamplesForMapEngine(t *testing.T) {
+	testGetMarkerPositionsForExamplesForEngine(t, signalprocessor.MapProcessorEngine)
 }
