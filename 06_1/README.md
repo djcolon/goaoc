@@ -107,3 +107,26 @@ implement both proposed methods of a signal processor behind an interface.
 We can then swap them out easily if so desired. We'll also try out
 [testing benchmarks](https://pkg.go.dev/testing#hdr-Benchmarks) to see what is
 actually faster.
+
+## Result
+
+Running the benchmarks:
+
+```sh
+$ goaoc/06_1/signal_processor$ go test -bench=.
+
+goos: linux
+goarch: amd64
+pkg: helder.uk/goaoc/06_1/signal_processor
+cpu: Intel(R) Core(TM) i7-4790K CPU @ 4.00GHz
+BenchmarkArrayProcessorOnInput-8          141362              8430 ns/op
+BenchmarkMapProcessorOnInput-8             19747             59333 ns/op
+```
+
+As I expected, the array implementation is faster than the map implementation,
+by about 7x! The combination of the lookup in the array being O(1) and updating
+the counter in the searchspace by directly accessing it from the returned
+pointer (rather than overwriting it with the updated value like we did for the
+map) combine to make the array a lot quicker. We could write an alternative
+MapProcesssor that stores pointers to counters to eliminate this overwriting,
+but we'll leave that as an exercise to the reader.
