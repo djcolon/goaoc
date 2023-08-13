@@ -39,7 +39,7 @@ func (processor *ArrayProcessor) updateWindowArray(newItem byte) (oldItem byte) 
 // Fed a byte, to return a bool when a marker has been identified.
 // Will throw an error if there are more than 255 of the same character within
 // the window.
-func (processor *ArrayProcessor) Process(dataItem byte) (endOfBuffer bool, err error) {
+func (processor *ArrayProcessor) Process(dataItem byte) (endOfMarker bool, err error) {
 	// Make sure we don't overflow.
 	if processor.charactersProcessed == math.MaxUint64 {
 		return false, errors.New("charactersProcessed reached overflow limit")
@@ -48,7 +48,7 @@ func (processor *ArrayProcessor) Process(dataItem byte) (endOfBuffer bool, err e
 	if dataItem < processor.searchSpaceOffset {
 		return false, fmt.Errorf("received dataItem %c smaller than searchSpaceOffset %c in ArrayProcessor", dataItem, processor.searchSpaceOffset)
 	}
-	if dataItem-processor.searchSpaceOffset > byte(processor.searchSpaceSize) {
+	if dataItem-processor.searchSpaceOffset >= byte(processor.searchSpaceSize) {
 		return false, fmt.Errorf("received dataItem %c larger than searchSpaceSize %d after shifting by searchSpaceOffset %c in ArrayProcessor", dataItem, processor.searchSpaceSize, processor.searchSpaceOffset)
 	}
 	// Then do the actual prcoessing.
@@ -56,7 +56,7 @@ func (processor *ArrayProcessor) Process(dataItem byte) (endOfBuffer bool, err e
 }
 
 // Process functions, but without up-front safety checks.
-func (processor *ArrayProcessor) processUnsafe(dataItem byte) (endOfBuffer bool, err error) {
+func (processor *ArrayProcessor) processUnsafe(dataItem byte) (endOfMarker bool, err error) {
 	// Shift the dataItem into the search space.
 	shiftedDataItem := dataItem - processor.searchSpaceOffset
 
@@ -105,5 +105,5 @@ func (processor *ArrayProcessor) Initialise(markerLength uint64, searchSpaceSize
 
 // Returns private charactersProcessed.
 func (processor *ArrayProcessor) GetCharactersprocessed() (charactersProcessed uint64) {
-	return charactersProcessed
+	return processor.charactersProcessed
 }

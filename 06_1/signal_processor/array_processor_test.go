@@ -4,7 +4,7 @@ import "testing"
 
 func TestUpdateWindowArray(t *testing.T) {
 	processor := ArrayProcessor{}
-	processor.Initialise(4, byte('z'-'a'), byte('a'))
+	processor.Initialise(4, byte('z'-'a')+1, byte('a'))
 	// Feed it some values until we start looping.
 	processor.updateWindowArray('a')
 	processor.updateWindowArray('b')
