@@ -1,28 +1,43 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
 )
 
 // const dirSizeLimit int = 100000
+func scanFileIntoProcessor(filePath string, processorIn chan<- string) {
+	// Open the input file.
+	file, err := os.Open(filePath)
+	if err != nil {
+		log.Fatalf("Failed to open file at: '%s'.", filePath)
+	}
+	defer file.Close()
+	log.Printf("Reading input from '%s'.\n", filePath)
+
+	// Initialise scanner
+	scanner := bufio.NewScanner(file)
+
+	// read the file.
+	for scanner.Scan() {
+		processorIn <- scanner.Text()
+	}
+	close(processorIn)
+}
 
 // Finds any directories under dirSizeLimit and returns the sum of their sizes.
 func computeDirSize(filePath string) (int, error) {
 	result := 0
 
-	// Open the input file.
-	file, err := os.Open(filePath)
-	if err != nil {
-		return 0, err
-	}
-	defer file.Close()
-	log.Printf("Reading input from '%s'.\n", filePath)
-
-	// Create root dir.
-	// rootDir := newRootDir()
-
+	// Instantiate the processor.
+	processor := NewProcessor()
+	// And start reading files.
+	go scanFileIntoProcessor(filePath, processor.in)
+	// And then wait until the processor has finished processing.
+	processor.process()
+	// Finally compute our result.
 	return result, nil
 }
 

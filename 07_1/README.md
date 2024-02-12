@@ -87,6 +87,7 @@ Find all of the directories with a total size of at most 100000. What is the sum
 - We can pass a directory more than once.
 - We will never list a directory more than once.
 - Any line starting with `$` is a command.
+- Any line not starting with `$` is result from `ls`
 - A directory that we cd to always exists.
 
 # Solution
