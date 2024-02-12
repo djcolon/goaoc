@@ -24,6 +24,7 @@ func NewProcessor() *processor {
 	result := new(processor)
 	result.in = make(chan string, 10)
 	result.dirTree = newRootDir()
+	result.dirIndex = make(map[string]*Dir)
 	result.dirIndex[result.dirTree.pathKey] = result.dirTree
 	result.currentDir = result.dirTree
 	return result
@@ -50,14 +51,21 @@ func (p *processor) cdIn(dirname string) {
 	}
 }
 
+// Will increase the current dir and all it's parents' file sizes by the given
+// size.
+// It would be quicker if we did this only once for the sum of the folder, but
+// would make the program less easy to read.
 func (p *processor) registerFileSize(size int) {
-	// Add the size to the currentdir, and all of its parents.
+	//log.Printf("Adding %d to %s", size, p.currentDir.pathKey)
+	// Add the size to the currentDir, and all of its parents.
 	p.currentDir.totalSize += size
 	for _, parent := range p.currentDir.pathList {
+		//log.Printf("Adding %d to %s", size, parent.pathKey)
 		parent.totalSize += size
 	}
 }
 
+// Processes commands coming into the in channel until it closes.
 func (p *processor) process() {
 	for line := range p.in {
 		// First parse the command. One of:
@@ -67,6 +75,10 @@ func (p *processor) process() {
 			// We can ignore ls, as any command not starting with $ is a result
 			// from ls.
 			if words[1] == "cd" {
+				if len(words) < 3 {
+					log.Println("Received cd without directory. Skipping.")
+					continue
+				}
 				if words[2] == ".." {
 					p.cdUp()
 				} else {
@@ -86,4 +98,16 @@ func (p *processor) process() {
 			}
 		}
 	}
+}
+
+// Sums up the size of any directory of at most the given limit and returns the
+// total.
+func (p *processor) SumDirSizesUpTo(limit int) int {
+	result := 0
+	for _, dir := range p.dirIndex {
+		if dir.totalSize <= limit {
+			result += dir.totalSize
+		}
+	}
+	return result
 }

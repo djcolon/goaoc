@@ -1050,7 +1050,7 @@ $ ls
 $ cd ..
 $ cd ..
 $ cd ..
-$ cd
+$ cd mwvbpw
 $ ls
 40049 qmmdv
 313418 qsgv.srp
