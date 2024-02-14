@@ -44,3 +44,21 @@ With 16 trees visible on the edge and another 5 visible in the interior, a
 total of 21 trees are visible in this arrangement.
 
 Consider your map; how many trees are visible from outside the grid?
+
+# Solution
+
+To find the number of trees that are visible, we will at the minimum have to
+iterate over every single tree once, as we cannot assume there are no taller
+or equally tall trees until we have tested them all. This means that at best,
+our solution is O(n). The problem is that for each tree, whether it is visible
+or not depends on every tree between the tree itself and each of the 4 edges.
+This means that in an n*n grid, the visibility of any tree from any direction
+is dependent on all trees to the left, right, top and bottom of it. I.e. 
+(n-1)+(n-1) trees. So if we, for every tree in the n*n grid, we tested all 4
+directions, our solution would be O(n^3). Not great. We can opportunistically
+break when we find a tree is not visible, but this won't do much in the grand
+scheme of things.
+
+## Reverse thinking.
+
+Rather than thinking what tree is visible from the edge, lets think
