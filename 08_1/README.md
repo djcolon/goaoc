@@ -62,3 +62,16 @@ scheme of things.
 ## Reverse thinking.
 
 Rather than thinking what tree is visible from the edge, lets think
+
+## TreeMap
+
+To efficiently store and access the highest tree we've seen so far in each
+cardinal direction, we'll pack the information into a 16 bit integer:
+[
+    highest tree west
+    highest tree north
+    highest tree east
+    tree height
+]
+Where each is 4 bits. Note we don't hold South. We will iterate over south last,
+so we don't need to store it as we'll compute the answer in the final iteration.
