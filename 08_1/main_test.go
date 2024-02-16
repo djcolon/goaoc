@@ -99,6 +99,7 @@ func TestMarkTreesFromSouthAndCount(t *testing.T) {
 	}
 }
 
+// Test our count with pre-marked trees.
 func TestMarkTreesFromSouthAndCountMarked(t *testing.T) {
 	input := [][]uint8{
 		{9, 9},
@@ -125,6 +126,36 @@ func TestMarkTreesFromSouthAndCountMarked(t *testing.T) {
 	}
 	if count != 8 {
 		t.Errorf("TestMarkTreesFromSouthAndCountMarked count result incorrect. Expected: 8, received: %d", count)
+	}
+}
+
+// Test our count with pre-marked trees and double 0 heights at the edge.
+func TestMarkTreesFromSouthAndCountMarkedWithDoubleZeroEdge(t *testing.T) {
+	input := [][]uint8{
+		{9, 9, 0},
+		{1 | 0b_0001_0000, 9, 0},
+		{8, 1, 0},
+		{4, 0 | 0b0100_0000, 0},
+		{5, 1, 0},
+		{2, 8, 0},
+	}
+	expected := [][]uint8{
+		{9, 9, 0},
+		{1 | 0b_0001_0000, 9, 0},
+		{8, 1, 0},
+		{4, 0 | 0b0100_0000, 0},
+		{5, 1, 0}, // <- Not visible!
+		{2, 8, 0}, // <- visible
+	}
+	count := markTreesFromSouthAndCount(input)
+	if !reflect.DeepEqual(
+		input,
+		expected,
+	) {
+		t.Errorf("TestMarkTreesFromSouthAndCountMarked mark result incorrect. Expected:\n%#08b\n, received:\n%#08b", expected, input)
+	}
+	if count != 9 {
+		t.Errorf("TestMarkTreesFromSouthAndCountMarked count result incorrect. Expected: 9, received: %d", count)
 	}
 }
 

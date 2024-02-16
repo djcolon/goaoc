@@ -86,8 +86,8 @@ func SetTreeVisibleFromEast(tree uint8, visible bool) uint8 {
 }
 
 // Gets the height of the tree.
-func GetTreeHeight(tree uint8) uint8 {
-	return tree & 0b_0000_1111
+func GetTreeHeight(tree uint8) int {
+	return int(tree & 0b_0000_1111)
 }
 
 // Returns whether a tree is visible from any direction.

@@ -10,15 +10,14 @@ import (
 func markTreesFromWest(matrix [][]uint8) {
 	// Iterate over the matrix rows starting from the top.
 	for ri := 0; ri < len(matrix); ri++ {
-		var tallestTreeSoFar uint8
+		tallestTreeSoFar := -1
 		// Then over the columns in each row, starting from the left.
 		for ci := 0; ci < len(matrix[ri]); ci++ {
 			// Get info about the tree.
 			tree := matrix[ri][ci]
 			treeHeight := GetTreeHeight(tree)
 			// Mark it.
-			visible := tallestTreeSoFar == 0 || treeHeight > tallestTreeSoFar
-			matrix[ri][ci] = SetTreeVisibleFromWest(tree, visible)
+			matrix[ri][ci] = SetTreeVisibleFromWest(tree, treeHeight > tallestTreeSoFar)
 			// Remember the tallest tree.
 			if treeHeight > tallestTreeSoFar {
 				tallestTreeSoFar = treeHeight
@@ -33,15 +32,14 @@ func markTreesFromNorth(matrix [][]uint8) {
 	// is never empty).
 	// Iterate over matrix columns starting from the left.
 	for ci := 0; ci < len(matrix[0]); ci++ {
-		var tallestTreeSoFar uint8
+		tallestTreeSoFar := -1
 		// Then iterate over the column starting from the top.
 		for ri := 0; ri < len(matrix); ri++ {
 			// Get info about the tree.
 			tree := matrix[ri][ci]
 			treeHeight := GetTreeHeight(tree)
 			// Mark it.
-			visible := tallestTreeSoFar == 0 || treeHeight > tallestTreeSoFar
-			matrix[ri][ci] = SetTreeVisibleFromNorth(tree, visible)
+			matrix[ri][ci] = SetTreeVisibleFromNorth(tree, treeHeight > tallestTreeSoFar)
 			// Remember the tallest tree.
 			if treeHeight > tallestTreeSoFar {
 				tallestTreeSoFar = treeHeight
@@ -54,15 +52,14 @@ func markTreesFromNorth(matrix [][]uint8) {
 func markTreesFromEast(matrix [][]uint8) {
 	// Iterate over the matrix rows starting from the top.
 	for ri := 0; ri < len(matrix); ri++ {
-		var tallestTreeSoFar uint8
+		tallestTreeSoFar := -1
 		// Then over the columns in each row, starting from the right.
 		for ci := len(matrix[ri]) - 1; ci >= 0; ci-- {
 			// Get info about the tree.
 			tree := matrix[ri][ci]
 			treeHeight := GetTreeHeight(tree)
 			// Mark it.
-			visible := tallestTreeSoFar == 0 || treeHeight > tallestTreeSoFar
-			matrix[ri][ci] = SetTreeVisibleFromEast(tree, visible)
+			matrix[ri][ci] = SetTreeVisibleFromEast(tree, treeHeight > tallestTreeSoFar)
 			// Remember the tallest tree.
 			if treeHeight > tallestTreeSoFar {
 				tallestTreeSoFar = treeHeight
@@ -78,18 +75,18 @@ func markTreesFromSouthAndCount(matrix [][]uint8) int {
 	// Iterate over matrix columns starting from the left.
 	visibleTrees := 0
 	for ci := 0; ci < len(matrix[0]); ci++ {
-		var tallestTreeSoFar uint8
+		tallestTreeSoFar := -1
 		// Then iterate over the column starting from the bottom.
 		for ri := len(matrix) - 1; ri >= 0; ri-- {
 			// Get info about the tree.
 			tree := matrix[ri][ci]
 			treeHeight := GetTreeHeight(tree)
-			visible := tallestTreeSoFar == 0 || treeHeight > tallestTreeSoFar
 			// Remember the tallest tree.
 			if treeHeight > tallestTreeSoFar {
 				tallestTreeSoFar = treeHeight
-			}
-			if visible || getTreeVisible(tree) {
+				// Visible form the south.
+				visibleTrees++
+			} else if getTreeVisible(tree) {
 				// Is the tree visible at all?
 				visibleTrees++
 			}
