@@ -7,8 +7,8 @@ import (
 	"strconv"
 )
 
-// Loads the matrix of trees into a matrix of uint16s.
-func LoadMatrix(filePath string, matrixSize int) [][]uint16 {
+// Loads the matrix of trees into a matrix of uint8s.
+func LoadMatrix(filePath string, matrixSize int) [][]uint8 {
 	file, err := os.Open(filePath)
 	if err != nil {
 		log.Fatalf("Failed to open file at: '%s'.", filePath)
@@ -22,7 +22,7 @@ func LoadMatrix(filePath string, matrixSize int) [][]uint16 {
 	scanner.Split(bufio.ScanBytes)
 
 	// Set up our result.
-	result := make([][]uint16, matrixSize)
+	result := make([][]uint8, matrixSize)
 	var n, i int
 	var s string
 	for scanner.Scan() {
@@ -31,33 +31,61 @@ func LoadMatrix(filePath string, matrixSize int) [][]uint16 {
 			n++
 		} else if s != "\r" {
 			i, _ = strconv.Atoi(s)
-			result[n] = append(result[n], uint16(i))
+			result[n] = append(result[n], uint8(i))
 		}
 	}
 	return result
 }
 
-// We're going to pack the tallest tree that is in one of the cardinal
-// directions from a given tree into the 16 bit integer. These functions
-// will retrieve them.
-func GetHighestTreeWest(tree uint16) uint16 {
-	return tree & 0b_1111_0000_0000_0000 >> 12
+// Gets whether the tree was marked visible from the west.
+func GetTreeVisibleFromWest(tree uint8) bool {
+	return tree&0b_0001_0000 > 0
 }
 
-// We're going to pack the tallest tree that is in one of the cardinal
-// directions from a given tree into the 16 bit integer. These functions
-// will retrieve them.
-func GetHighestTreeNorth(tree uint16) uint16 {
-	return tree & 0b_0000_1111_0000_0000 >> 8
+// Gets whether the tree was marked visible from the north.
+func GetTreeVisibleFromNorth(tree uint8) bool {
+	return tree&0b_0010_0000 > 0
 }
 
-// We're going to pack the tallest tree that is in one of the cardinal
-// directions from a given tree into the 16 bit integer. These functions
-// will retrieve them.
-func GetHighestTreeEast(tree uint16) uint16 {
-	return tree & 0b_0000_0000_1111_0000 >> 4
+// Gets whether the tree was marked visible from the east.
+func GetTreeVisibleFromEast(tree uint8) bool {
+	return tree&0b_0100_0000 > 0
 }
 
-func GetTreeHeight(tree uint16) uint16 {
-	return tree & 0b_0000_0000_0000_1111
+// Sets whether the tree was marked visible from the west.
+func SetTreeVisibleFromWest(tree uint8, visible bool) uint8 {
+	var mask uint8 = 0b_0001_0000
+	if visible {
+		// If visible we set the bit to 1.
+		return tree | mask
+	} else {
+		// Otherwise we strip it out.
+		// This is tree & 0b_1110_1111
+		return tree & ^mask
+	}
+}
+
+// Sets whether the tree was marked visible from the north.
+func SetTreeVisibleFromNorth(tree uint8, visible bool) uint8 {
+	var mask uint8 = 0b_0010_0000
+	if visible {
+		return tree | mask
+	} else {
+		return tree & ^mask
+	}
+}
+
+// Sets whether the tree was marked visible from the east.
+func SetTreeVisibleFromEast(tree uint8, visible bool) uint8 {
+	var mask uint8 = 0b_0100_0000
+	if visible {
+		return tree | mask
+	} else {
+		return tree & ^mask
+	}
+}
+
+// Gets the height of the tree.
+func GetTreeHeight(tree uint8) uint8 {
+	return tree & 0b_0000_1111
 }

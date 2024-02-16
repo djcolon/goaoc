@@ -7,7 +7,7 @@ import (
 
 // Tests the function that loads a tree map file into a matrix.
 func TestLoadMatrix(t *testing.T) {
-	expected := [][]uint16{
+	expected := [][]uint8{
 		{3, 0, 3, 7, 3},
 		{2, 5, 5, 1, 2},
 		{6, 5, 3, 3, 2},
@@ -23,49 +23,147 @@ func TestLoadMatrix(t *testing.T) {
 	}
 }
 
-// Test West
-func TestGetHighestTreeWest(t *testing.T) {
-	result := GetHighestTreeWest(0b_0111_0001_0001_0001)
-	if result != 7 {
-		t.Fatalf("Expected 7, got %d", result)
+// Test West get
+func TestGetTreeVisibleFromWest(t *testing.T) {
+	if !GetTreeVisibleFromWest(0b_0001_0000) {
+		t.Fatal("GetTreeVisibleFromWest returned false, should be true.")
 	}
-	result = GetHighestTreeWest(0b_1001_0000_0000_0000)
-	if result != 9 {
-		t.Fatalf("Expected 9, got %d", result)
+	if GetTreeVisibleFromWest(0b_1110_1111) {
+		t.Fatal("GetTreeVisibleFromWest returned true, should be false.")
 	}
 }
 
-// Test North
-func TestGetHighestTreeNorth(t *testing.T) {
-	result := GetHighestTreeNorth(0b_0001_0111_0001_0001)
-	if result != 7 {
-		t.Fatalf("Expected 7, got %d", result)
+// Test North get
+func TestGetTreeVisibleFromNorth(t *testing.T) {
+	if !GetTreeVisibleFromNorth(0b_0010_0000) {
+		t.Fatal("GetTreeVisibleFromNorth returned false, should be true.")
 	}
-	result = GetHighestTreeNorth(0b_0000_1001_0000_0000)
-	if result != 9 {
-		t.Fatalf("Expected 9, got %d", result)
+	if GetTreeVisibleFromNorth(0b_1101_1111) {
+		t.Fatal("GetTreeVisibleFromNorth returned true, should be false.")
 	}
 }
 
-// Test East
-func TestGetHighestTreeEast(t *testing.T) {
-	result := GetHighestTreeEast(0b_0001_0001_0111_0001)
-	if result != 7 {
-		t.Fatalf("Expected 7, got %d", result)
+// Test East get
+func TestGetTreeVisibleFromEast(t *testing.T) {
+	if !GetTreeVisibleFromEast(0b_0100_0000) {
+		t.Fatal("GetTreeVisibleFromEast returned false, should be true.")
 	}
-	result = GetHighestTreeEast(0b_0000_0000_1001_0000)
-	if result != 9 {
-		t.Fatalf("Expected 9, got %d", result)
+	if GetTreeVisibleFromEast(0b_1011_1111) {
+		t.Fatal("GetTreeVisibleFromEast returned true, should be false.")
+	}
+}
+
+// Test West set
+func TestSetTreeVisibleFromWest(t *testing.T) {
+	// Set to true
+	result := SetTreeVisibleFromWest(0, true)
+	if result != 0b0001_0000 {
+		t.Fatalf("SetTreeVisibleFromWest(0, true) incorrect, expected 0b0001_0000, got %#b", result)
+	}
+	result = SetTreeVisibleFromWest(0b0001_0000, true)
+	if result != 0b0001_0000 {
+		t.Fatalf("SetTreeVisibleFromWest(0b0001_0000, true) incorrect, expected 0b0001_0000, got %#b", result)
+	}
+	result = SetTreeVisibleFromWest(0b1110_1111, true)
+	if result != 0b1111_1111 {
+		t.Fatalf("SetTreeVisibleFromWest(0b1110_1111, true) incorrect, expected 0b1111_1111, got %#b", result)
+	}
+
+	// Set to false
+	result = SetTreeVisibleFromWest(0, false)
+	if result != 0b0000_0000 {
+		t.Fatalf("SetTreeVisibleFromWest(0, false) incorrect, expected 0b0000_0000, got %#b", result)
+	}
+	result = SetTreeVisibleFromWest(0b0001_0000, false)
+	if result != 0b0000_0000 {
+		t.Fatalf("SetTreeVisibleFromWest(0b0001_0000, false) incorrect, expected 0b0000_0000, got %#b", result)
+	}
+	result = SetTreeVisibleFromWest(0b1110_1111, false)
+	if result != 0b1110_1111 {
+		t.Fatalf("SetTreeVisibleFromWest(0b1110_1111, false) incorrect, expected 0b1111_1111, got %#b", result)
+	}
+	result = SetTreeVisibleFromWest(0b1111_1111, false)
+	if result != 0b1110_1111 {
+		t.Fatalf("SetTreeVisibleFromWest(0b1111_1111, false) incorrect, expected 0b1110_1111, got %#b", result)
+	}
+}
+
+// Test North set
+func TestSetTreeVisibleFromNorth(t *testing.T) {
+	// Set to true
+	result := SetTreeVisibleFromNorth(0, true)
+	if result != 0b0010_0000 {
+		t.Fatalf("SetTreeVisibleFromNorth(0, true) incorrect, expected 0b0010_0000, got %#b", result)
+	}
+	result = SetTreeVisibleFromNorth(0b0010_0000, true)
+	if result != 0b0010_0000 {
+		t.Fatalf("SetTreeVisibleFromNorth(0b0010_0000, true) incorrect, expected 0b0010_0000, got %#b", result)
+	}
+	result = SetTreeVisibleFromNorth(0b1101_1111, true)
+	if result != 0b1111_1111 {
+		t.Fatalf("SetTreeVisibleFromNorth(0b1101_1111, true) incorrect, expected 0b1111_1111, got %#b", result)
+	}
+
+	// Set to false
+	result = SetTreeVisibleFromNorth(0, false)
+	if result != 0b0000_0000 {
+		t.Fatalf("SetTreeVisibleFromNorth(0, false) incorrect, expected 0b0000_0000, got %#b", result)
+	}
+	result = SetTreeVisibleFromNorth(0b0010_0000, false)
+	if result != 0b0000_0000 {
+		t.Fatalf("SetTreeVisibleFromNorth(0b0010_0000, false) incorrect, expected 0b0000_0000, got %#b", result)
+	}
+	result = SetTreeVisibleFromNorth(0b1101_1111, false)
+	if result != 0b1101_1111 {
+		t.Fatalf("SetTreeVisibleFromNorth(0b1101_1111, false) incorrect, expected 0b1101_1111, got %#b", result)
+	}
+	result = SetTreeVisibleFromNorth(0b1111_1111, false)
+	if result != 0b1101_1111 {
+		t.Fatalf("SetTreeVisibleFromNorth(0b1111_1111, false) incorrect, expected 0b1101_1111, got %#b", result)
+	}
+}
+
+func TestSetTreeVisibleFromEast(t *testing.T) {
+	// Set to true
+	result := SetTreeVisibleFromEast(0, true)
+	if result != 0b0100_0000 {
+		t.Fatalf("SetTreeVisibleFromEast(0, true) incorrect, expected 0b0100_0000, got %#b", result)
+	}
+	result = SetTreeVisibleFromEast(0b0100_0000, true)
+	if result != 0b0100_0000 {
+		t.Fatalf("SetTreeVisibleFromEast(0b0100_0000, true) incorrect, expected 0b0100_0000, got %#b", result)
+	}
+	result = SetTreeVisibleFromEast(0b1011_1111, true)
+	if result != 0b1111_1111 {
+		t.Fatalf("SetTreeVisibleFromEast(0b1011_1111, true) incorrect, expected 0b1111_1111, got %#b", result)
+	}
+
+	// Set to false
+	result = SetTreeVisibleFromEast(0, false)
+	if result != 0b0000_0000 {
+		t.Fatalf("SetTreeVisibleFromEast(0, false) incorrect, expected 0b0000_0000, got %#b", result)
+	}
+	result = SetTreeVisibleFromEast(0b0100_0000, false)
+	if result != 0b0000_0000 {
+		t.Fatalf("SetTreeVisibleFromEast(0b0100_0000, false) incorrect, expected 0b0000_0000, got %#b", result)
+	}
+	result = SetTreeVisibleFromEast(0b1011_1111, false)
+	if result != 0b1011_1111 {
+		t.Fatalf("SetTreeVisibleFromEast(0b1011_1111, false) incorrect, expected 0b1011_1111, got %#b", result)
+	}
+	result = SetTreeVisibleFromEast(0b1111_1111, false)
+	if result != 0b1011_1111 {
+		t.Fatalf("SetTreeVisibleFromEast(0b1111_1111, false) incorrect, expected 0b1011_1111, got %#b", result)
 	}
 }
 
 // Test height
 func TestGetTreeHeight(t *testing.T) {
-	result := GetTreeHeight(0b_0001_0001_0001_0111)
+	result := GetTreeHeight(0b_0001_0111)
 	if result != 7 {
 		t.Fatalf("Expected 7, got %d", result)
 	}
-	result = GetTreeHeight(0b_0000_0000_0000_1001)
+	result = GetTreeHeight(0b_1111_1001)
 	if result != 9 {
 		t.Fatalf("Expected 9, got %d", result)
 	}

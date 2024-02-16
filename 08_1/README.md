@@ -54,24 +54,32 @@ our solution is O(n). The problem is that for each tree, whether it is visible
 or not depends on every tree between the tree itself and each of the 4 edges.
 This means that in an n*n grid, the visibility of any tree from any direction
 is dependent on all trees to the left, right, top and bottom of it. I.e. 
-(n-1)+(n-1) trees. So if we, for every tree in the n*n grid, we tested all 4
-directions, our solution would be O(n^3). Not great. We can opportunistically
-break when we find a tree is not visible, but this won't do much in the grand
-scheme of things.
+(n-1)+(n-1) trees. So if we, for n trees in the grid, iterated over each tree
+between it and each edge, our solution would be O(n^2). Not great. We can
+opportunistically break when we find a tree is not visible, but this won't do
+much in the grand scheme of things.
 
-## Reverse thinking.
+## Linear time.
 
-Rather than thinking what tree is visible from the edge, lets think
+To prevent iterating over trees to many times, we can restrict ourselves to
+iterating over a tree only once for each direction. By moving over the row,
+and tracking the tallest tree we have passed since leaving the edge, we can
+mark each tree as visible or not from that direction by seeing if it is taller
+than or the same height as any tree we've passed before. Then on our final
+directional iteration we check whether it is visible from any direction and
+count.
 
 ## TreeMap
 
-To efficiently store and access the highest tree we've seen so far in each
-cardinal direction, we'll pack the information into a 16 bit integer:
-[
-    highest tree west
-    highest tree north
-    highest tree east
-    tree height
-]
-Where each is 4 bits. Note we don't hold South. We will iterate over south last,
+To efficiently store and access whether a tree is visible from any specific
+direction, we'll pack the information into the uint 8. We only need 4 bits to
+store the hight, leaving the others to store whether we';ve marked the tree
+visible or not:
+```
+tree & 0b0001_0000: visible from west
+tree & 0b0010_0000: visible from north
+tree & 0b0100_0000: visible from east
+tree & 0b0000_1111: tree height
+```
+Note we don't hold South. We will iterate over south last,
 so we don't need to store it as we'll compute the answer in the final iteration.
