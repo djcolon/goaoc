@@ -168,3 +168,35 @@ func TestGetTreeHeight(t *testing.T) {
 		t.Fatalf("Expected 9, got %d", result)
 	}
 }
+
+func TestGetTreeVisible(t *testing.T) {
+	// Visible
+	if !getTreeVisible(0b0100_0000) {
+		t.Fatalf("getTreeVisible incorrect. 0b0100_0000 is visible.")
+	}
+	if !getTreeVisible(0b0110_0110) {
+		t.Fatalf("getTreeVisible incorrect. 0b0110_0110 is visible.")
+	}
+	if !getTreeVisible(0b0110_0001) {
+		t.Fatalf("getTreeVisible incorrect. 0b0110_0001 is visible.")
+	}
+	if !getTreeVisible(0b0001_0000) {
+		t.Fatalf("getTreeVisible incorrect. 0b0001_0000 is visible.")
+	}
+	if !getTreeVisible(0b1111_0000) {
+		t.Fatalf("getTreeVisible incorrect. 0b1111_0000 is visible.")
+	}
+	// Not visible
+	if getTreeVisible(0b1000_0000) {
+		t.Fatalf("getTreeVisible incorrect. 0b1000_0000 is not visible.")
+	}
+	if getTreeVisible(0b1000_0010) {
+		t.Fatalf("getTreeVisible incorrect. 0b1000_0010 is not visible.")
+	}
+	if getTreeVisible(0b0000_1100) {
+		t.Fatalf("getTreeVisible incorrect. 0b0000_1100 is not visible.")
+	}
+	if getTreeVisible(0b0000_1111) {
+		t.Fatalf("getTreeVisible incorrect. 0b0000_1111 is not visible.")
+	}
+}
